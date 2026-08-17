@@ -10,6 +10,7 @@ import Register from "../pages/Register";
 import Dashboard from "../pages/Dashboard";
 import Skills from "../pages/Skills";
 import Projects from "../pages/Projects";
+import DailyLogs from "../pages/DailyLogs";
 
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -26,6 +27,8 @@ function AppRoutes() {
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/skills" element={<Skills />} />
                     <Route path="/projects" element={<Projects />} />
+                    <Route path="/daily-logs" element={<DailyLogs />}
+    />
 
                 </Route>
 

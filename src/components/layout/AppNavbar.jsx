@@ -1,11 +1,11 @@
 import { Container, Nav, Navbar, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 
-import {FaTachometerAlt,FaBook,FaProjectDiagram,FaSignOutAlt} from "react-icons/fa";
+import { FaTachometerAlt, FaBook, FaProjectDiagram, FaHistory, FaSignOutAlt } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 
 function AppNavbar() {
-    const { auth, logout,} = useAuth();
+    const { auth, logout, } = useAuth();
 
     const navigate = useNavigate();
 
@@ -21,7 +21,7 @@ function AppNavbar() {
                 <Navbar.Brand as={Link} to="/dashboard" className="fw-bold">
                     DevTrack
                 </Navbar.Brand>
-                <Navbar.Toggle aria-controls="main-navbar"/>
+                <Navbar.Toggle aria-controls="main-navbar" />
                 <Navbar.Collapse id="main-navbar">
 
                     <Nav className="me-auto">
@@ -30,14 +30,19 @@ function AppNavbar() {
                             Dashboard
                         </Nav.Link>
 
-                        <Nav.Link as={Link} to="/skills">                           
-                        <FaBook className="me-2" />
+                        <Nav.Link as={Link} to="/skills">
+                            <FaBook className="me-2" />
                             Skills
                         </Nav.Link>
 
                         <Nav.Link as={Link} to="/projects">
                             <FaProjectDiagram className="me-2" />
                             Projects
+                        </Nav.Link>
+
+                        <Nav.Link as={Link} to="/daily-logs">
+                            <FaHistory className="me-2" />
+                            Daily Logs
                         </Nav.Link>
                     </Nav>
 
