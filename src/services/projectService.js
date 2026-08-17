@@ -12,6 +12,7 @@ const projectService = {
         return response.data;
     },
 
+
     getAllProjects: async(userId) => {
 
         const response = await api.get(
@@ -21,7 +22,9 @@ const projectService = {
         return response.data;
     },
 
+
     getProjectById: async(userId, projectId) => {
+
         const response = await api.get(
             `/api/users/${userId}/projects/${projectId}`
         );
@@ -29,7 +32,12 @@ const projectService = {
         return response.data;
     },
 
-    updateProject: async(userId, projectId, projectData) => {
+
+    updateProject: async(
+        userId,
+        projectId,
+        projectData
+    ) => {
 
         const response = await api.put(
             `/api/users/${userId}/projects/${projectId}`,
@@ -39,7 +47,11 @@ const projectService = {
         return response.data;
     },
 
-    deleteProject: async(serId, projectId) => {
+
+    deleteProject: async(
+        userId,
+        projectId
+    ) => {
 
         const response = await api.delete(
             `/api/users/${userId}/projects/${projectId}`
@@ -48,7 +60,11 @@ const projectService = {
         return response.data;
     },
 
-    getProjectsByStatus: async(userId, status) => {
+
+    getProjectsByStatus: async(
+        userId,
+        status
+    ) => {
 
         const response = await api.get(
             `/api/users/${userId}/projects/status/${status}`
