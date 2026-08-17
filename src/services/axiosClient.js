@@ -11,40 +11,56 @@ const axiosClient = axios.create({
 
 axiosClient.interceptors.request.use(
     (config) => {
-        const authData = localStorage.getItem("devtrack_auth");
+        const storedAuth = localStorage.getItem("devtrack_auth");
 
-        if (authData) {
+        if (storedAuth) {
             try {
-                const { token } = JSON.parse(authData);
+
+                const parsedAuth = JSON.parse(storedAuth);
+
+                const token = parsedAuth && parsedAuth.token;
 
                 if (token) {
                     config.headers.Authorization = `Bearer ${token}`;
                 }
+
             } catch (error) {
                 console.error("Invalid authentication data:", error);
+
                 localStorage.removeItem("devtrack_auth");
             }
         }
 
         return config;
     },
-    (error) => Promise.reject(error)
-);
-
-axiosClient.interceptors.response.use(
-    (response) => response,
 
     (error) => {
-        if (error.response && error.response.status === 401) {
+        return Promise.reject(error);
+    }
+);
+axiosClient.interceptors.response.use(
+
+    (response) => {
+        return response;
+    },
+
+    (error) => {
+
+        if (
+            error.response &&
+            error.response.status === 401
+        ) {
+
+            console.error("Authentication expired or unauthorized.");
+
             localStorage.removeItem("devtrack_auth");
 
-            window.dispatchEvent(
-                new Event("auth:logout")
-            );
+            window.dispatchEvent(new Event("auth:logout"));
         }
 
         return Promise.reject(error);
     }
 );
+
 
 export default axiosClient;

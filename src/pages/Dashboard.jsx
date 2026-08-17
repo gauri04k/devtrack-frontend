@@ -1,223 +1,230 @@
-import {
-    Button,
-    Card,
-    Col,
-    Container,
-    Row,
-    Alert,
-    Spinner,
-} from "react-bootstrap";
-
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Button, Card, Col, Container, Row, Alert, Spinner, } from "react-bootstrap";
+import { useEffect, useState, } from "react";
+import { Link, } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext";
-import axiosClient from "../services/axiosClient";
+
+import AppNavbar from "../components/layout/AppNavbar";
+import dashboardService from "../services/dashboardService";
+
 
 function Dashboard() {
+    const { auth, } = useAuth();
+    const [dashboard, setDashboard,] = useState(null);
+    const [loading, setLoading,] = useState(true);
+    const [error, setError,] = useState("");
 
-    const navigate = useNavigate();
-
-    const {
-        auth,
-        logout,
-    } = useAuth();
-
-    const [dashboard, setDashboard] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
 
     useEffect(() => {
 
         const fetchDashboard = async () => {
+            console.log("DASHBOARD AUTH:", auth);
 
             if (!auth?.userId) {
-                console.log("No userId found in auth");
+                console.error("No userId found in auth.");
+                setError("Unable to identify the logged-in user.")
                 setLoading(false);
+
                 return;
             }
 
-            console.log(
-                "Calling Dashboard API for user:",
-                auth.userId
-            );
 
             try {
+                console.log("DASHBOARD USER ID:", auth.userId);
+                const data = await dashboardService.getDashboard(auth.userId);
 
-                const response = await axiosClient.get(
-                    `/api/users/${auth.userId}/dashboard`
-                );
-
-                console.log(
-                    "Dashboard API response:",
-                    response.data
-                );
-
-                setDashboard(response.data);
+                console.log("DASHBOARD API RESPONSE:", data);
+                setDashboard(data);
 
             } catch (err) {
 
-                console.error(
-                    "Dashboard API error:",
-                    err
-                );
+                console.error("Dashboard API error:", err);
+                console.error("Dashboard API response:", err.response?.data);
 
-                if (err.response) {
-                    console.error(
-                        "Status:",
-                        err.response.status
-                    );
-
-                    console.error(
-                        "Response:",
-                        err.response.data
-                    );
-                }
-
-                setError(
-                    "Unable to load dashboard data."
-                );
+                setError(err.response?.data?.message || "Unable to load dashboard.");
 
             } finally {
-
                 setLoading(false);
             }
+
         };
-
         fetchDashboard();
-
     }, [auth?.userId]);
 
 
-    const handleLogout = () => {
-
-        logout();
-
-        navigate("/login", {
-            replace: true,
-        });
-    };
-
-
     return (
-        <Container className="py-5">
+        <>
+            <AppNavbar />
+            <Container className="py-4 py-lg-5">
+                <div className="mb-4">
 
-            <Row className="justify-content-center">
+                    <h1 className="fw-bold mb-1">Welcome, {auth?.name || "Developer"}</h1>
+                    <p className="text-muted mb-0">
+                        Track your learning progress and
+                        keep building your developer journey.
+                    </p>
+                </div>
 
-                <Col
-                    xs={12}
-                    md={10}
-                    lg={8}
-                >
+                {loading && (
+                    <div className="text-center py-5">
+                        <Spinner animation="border" />
+                        <p className="text-muted mt-3">
+                            Loading dashboard...
+                        </p>
+                    </div>
 
-                    <Card className="border-0 shadow-sm">
+                )}
 
-                        <Card.Body className="p-4">
+                {error && (<Alert variant="danger">{error}</Alert>)}
 
-                            <div className="d-flex justify-content-between align-items-center mb-4">
-
-                                <div>
-
-                                    <h2 className="fw-bold mb-1">
-                                        Dashboard
-                                    </h2>
-
-                                    <p className="text-muted mb-0">
-                                        Welcome to DevTrack
-                                    </p>
-
-                                </div>
-
-                                <Button
-                                    variant="outline-danger"
-                                    onClick={handleLogout}
-                                >
-                                    Logout
-                                </Button>
-
-                            </div>
-
-                            <hr />
-
-
-                            <h5>
-                                Authentication working successfully 
-                            </h5>
-
-                            <p className="mb-1">
-                                <strong>Name:</strong>{" "}
-                                {auth?.name || "User"}
-                            </p>
-
-                            <p className="mb-1">
-                                <strong>Email:</strong>{" "}
-                                {auth?.email || "N/A"}
-                            </p>
-
-                            <p className="mb-3">
-                                <strong>User ID:</strong>{" "}
-                                {auth?.userId || "N/A"}
-                            </p>
-
-
-                            <hr />
-
-
-                            {/* Dashboard API */}
-
-                            <h5 className="mb-3">
-                                Dashboard Data
-                            </h5>
-
-
-                            {loading && (
-                                <div>
-                                    <Spinner
-                                        animation="border"
-                                        size="sm"
-                                        className="me-2"
-                                    />
-
-                                    Loading dashboard...
-                                </div>
-                            )}
-
-
-                            {error && (
-                                <Alert variant="danger">
-                                    {error}
-                                </Alert>
-                            )}
-
-
-                            {!loading && !error && dashboard && (
-                                <Card className="bg-light border-0">
-
+                {!loading && !error && dashboard && (
+                    <>
+                        <Row className="g-4 mb-4">
+                            <Col xs={12} md={6} lg={3}>
+                                <Card className="border-0 shadow-sm h-100">
                                     <Card.Body>
 
-                                        <pre className="mb-0">
-                                            {JSON.stringify(
-                                                dashboard,
-                                                null,
-                                                2
-                                            )}
-                                        </pre>
+                                        <div className="text-muted small">
+                                            Learning Skills
+                                        </div>
+
+                                        <div className="fs-2 fw-bold text-primary">
+                                            {dashboard.learningSkills ?? 0}
+
+                                        </div>
 
                                     </Card.Body>
 
                                 </Card>
-                            )}
+
+                            </Col>
+
+                            <Col xs={12} md={6} lg={3}>
+
+                                <Card className="border-0 shadow-sm h-100">
+                                    <Card.Body>
+                                        <div className="text-muted small">
+                                            Completed Skills
+                                        </div>
 
 
-                        </Card.Body>
+                                        <div className="fs-2 fw-bold text-success">
+                                            {dashboard.completedSkills ?? 0}
+                                        </div>
 
-                    </Card>
+                                    </Card.Body>
+                                </Card>
 
-                </Col>
+                            </Col>
 
-            </Row>
+                            <Col xs={12} md={6} lg={3}>
 
-        </Container>
+                                <Card className="border-0 shadow-sm h-100">
+
+                                    <Card.Body>
+                                        <div className="text-muted small"> Weekly Hours</div>
+
+                                        <div className="fs-2 fw-bold">
+                                            {dashboard.weeklyHours ?? 0}
+                                        </div>
+
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+
+                            <Col xs={12} md={6} lg={3}>
+                                <Card className="border-0 shadow-sm h-100">
+                                    <Card.Body>
+                                        <div className="text-muted small">
+                                            Active Projects
+                                        </div>
+
+                                        <div className="fs-2 fw-bold">
+                                            {dashboard.activeProjects ?? 0}
+                                        </div>
+
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+                        </Row>
+
+                        <Row className="g-4">
+                            <Col xs={12} lg={8}>
+
+                                <Card className="border-0 shadow-sm h-100">
+                                    <Card.Body>
+                                        <div className="d-flex justify-content-between align-items-center mb-3">
+
+                                            <div>
+                                                <h5 className="fw-bold mb-1">Recent Activity</h5>
+                                                <small className="text-muted">
+                                                    Your latest learning sessions
+                                                </small>
+                                            </div>
+                                        </div>
+                                        {dashboard.recentActivity?.length ? (
+                                            <div className="table-responsive">
+                                                <table className="table align-middle mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Topic</th>
+                                                            <th>Hours</th>
+                                                            <th>Date</th>
+                                                        </tr>
+                                                    </thead>
+
+
+                                                    <tbody>
+                                                        {dashboard.recentActivity.map((activity) => (
+                                                            <tr key={activity.id}>
+                                                                <td className="fw-semibold">{activity.topic}</td>
+                                                                <td>{activity.hours}</td>
+                                                                <td>{activity.logDate}</td>
+                                                            </tr>
+                                                        )
+                                                        )}
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        ) : (
+
+                                            <p className="text-muted mb-0">
+                                                No recent activity.
+                                            </p>
+                                        )}
+
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+
+                            <Col xs={12} lg={4}>
+
+                                <Card className="border-0 shadow-sm h-100">
+                                    <Card.Body className="d-flex flex-column">
+                                        <h5 className="fw-bold">
+                                            Continue Learning
+                                        </h5>
+
+                                        <p className="text-muted">
+                                            Manage the skills you are
+                                            currently learning.
+                                        </p>
+
+                                        <Button as={Link} to="/skills" variant="primary" className="mt-auto" >
+                                            Manage Skills
+                                        </Button>
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+                        </Row>
+                    </>
+
+                )}
+
+            </Container>
+
+        </>
     );
 }
 
